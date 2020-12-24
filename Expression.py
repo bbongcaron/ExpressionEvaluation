@@ -162,6 +162,7 @@ def __basicSolve(tokenizedExpr, vars, arrays):
                 if element == var.name:
                     valueStack.push(int(var.value))
                     found = True
+                    break
             if not found:
                 for arr in arrays:
                     if element == arr.name:
@@ -171,6 +172,7 @@ def __basicSolve(tokenizedExpr, vars, arrays):
                         # Remove Array Object index so the index is not pushed into valueStack
                         tokenizedExpr[index+1] = None
                         found = True
+                        break
     # Start popping operator stack and determining values
     while not operationStack.isEmpty():
         currentOp = operationStack.pop()
