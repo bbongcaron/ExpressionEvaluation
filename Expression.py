@@ -147,12 +147,13 @@ def evaluate(expression, vars, arrays):
     #        ['variableX', '+', '(', 'variableY', ')']
     while parsePointer < len(expr):
         if expr[parsePointer] in ('+', '-', '*', '/', '[', ']', '(', ')'):
-            if parsePointer != 0:
+            if currentItem:
                 tokenizedExpr.append(currentItem)
             tokenizedExpr.append(expr[parsePointer])
             currentItem = ""
         else:
             currentItem += expr[parsePointer]
         parsePointer += 1
-        if parsePointer == len(expr):
+        if currentItem and parsePointer == len(expr):
             tokenizedExpr.append(currentItem)
+    print(tokenizedExpr)
