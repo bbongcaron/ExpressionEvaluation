@@ -180,7 +180,7 @@ def __basicSolve(tokenizedExpr, vars, arrays):
     while not operationStack.isEmpty():
         currentOp = operationStack.pop()
         num1 = valueStack.pop()
-        if currentOp in ('+','-') and not operationStack.isEmpty() and operationStack.peek() in ('-','*','/'):
+        while currentOp in ('+','-') and not operationStack.isEmpty() and operationStack.peek() in ('-','*','/'):
             num2 = valueStack.pop()
             num3 = valueStack.pop()
             if operationStack.peek() == '*':
