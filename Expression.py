@@ -108,9 +108,6 @@ def evaluate(expression, vars, arrays):
     # Remove spaces from expression
     expr = expression.replace(" ", "")
     # PMDAS
-    operationStack = Stack()
-    valueStack = Stack()
-
     # Separate expr into a list of operators and FULL variable/array names
     tokenizedExpr = __tokenizeExpression(expr)
 
@@ -123,8 +120,13 @@ def evaluate(expression, vars, arrays):
         # Solve expression in parenthesis pair
         # Should be a while loop not an if statment
     
+    return __basicSolve(tokenizedExpr, vars, arrays)
+
+def __basicSolve(tokenizedExpr, vars, arrays):
     # No parenthesis are left: straight solve the expression
     # Create operator and value stacks
+    operationStack = Stack()
+    valueStack = Stack()
     for element in tokenizedExpr:
         if element in ('+', '-', '*', '/'):
             operationStack.push(element)
@@ -140,6 +142,7 @@ def evaluate(expression, vars, arrays):
             if not found:
                 # need to determine which array index to pull
                 found = True
+    
     # Start popping operator stack and determining values
     while not operationStack.isEmpty():
         currentOp = operationStack.pop()
