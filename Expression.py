@@ -116,7 +116,9 @@ def evaluate(expression, vars, arrays):
     openParenthesis = []
     parsePointer = 0
     direction = "right"
-    # Parenthesis Turing Machine-Style scan
+    # 
+    # Parenthesis Turing Machine-Style scan to find open/closed parenthesis pairs
+    #
     while 0 <= parsePointer < len(expr):
         if direction == "right":
             if expr[parsePointer] == ')' and parsePointer not in closedParenthesis:
@@ -140,9 +142,9 @@ def evaluate(expression, vars, arrays):
     tokenizedExpr = []
     parsePointer = 0
     currentItem = ""
-    #   tokenize the expression by operators and *full* variable names:
-    #       expr = variableX + (variableY) would be tokenized to:
-    #               ['variableX', '+', '(', 'variableY', ')']
+    # tokenize the expression by operators and *full* variable names:
+    # expr = variableX + (variableY) would be tokenized to:
+    #        ['variableX', '+', '(', 'variableY', ')']
     while parsePointer < len(expr):
         if expr[parsePointer] in ('+', '-', '*', '/', '[', ']', '(', ')'):
             if parsePointer != 0:
@@ -154,4 +156,3 @@ def evaluate(expression, vars, arrays):
         parsePointer += 1
         if parsePointer == len(expr):
             tokenizedExpr.append(currentItem)
-    print(tokenizedExpr)
