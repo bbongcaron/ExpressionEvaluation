@@ -8,7 +8,7 @@ In this assignment you will implement a program to evaluate an arithmetic expres
    - Expression.evaluate()
    - Expression.__basicSolve()
    - Expression.__findGrouperPair()
-   - Expression.__tokenizeExpression()
+   - Expression.__tokenizeExpression()  
 **The remainder of the methods were given by @runb-cs112 in Java for CS112 Data Structures in Spring 2020 and translated to Python by @Brenton Bongcaron**
 ##
 ## Rules
