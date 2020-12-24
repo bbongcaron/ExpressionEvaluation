@@ -152,11 +152,12 @@ def __basicSolve(tokenizedExpr, vars, arrays):
         try:
             # try to straight push the element => works if element is an integer
             valueStack.push(int(element))
+        except TypeError:
+            # catching TypeError => element must be None
+            continue
         except ValueError:
-            # catching ValueError => element is either an Array/Variable Object or None
-            if element is None:
-                continue
-            elif element in ('+', '-', '*', '/'):
+            # catching ValueError => element is either an Array/Variable Object
+            if element in ('+', '-', '*', '/'):
                 operationStack.push(element)
             else:
                 # element is an Array or Variable
