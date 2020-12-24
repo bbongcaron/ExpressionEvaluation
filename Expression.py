@@ -112,33 +112,6 @@ def evaluate(expression, vars, arrays):
     # PMDAS
     #operationStack = Stack()
     #valueStack = Stack()
-    closedParenthesis = []
-    openParenthesis = []
-    parsePointer = 0
-    direction = "right"
-    # 
-    # Parenthesis Turing Machine-Style scan to find open/closed parenthesis pairs
-    #
-    while 0 <= parsePointer < len(expr):
-        if direction == "right":
-            if expr[parsePointer] == ')' and parsePointer not in closedParenthesis:
-                closedParenthesis.append(parsePointer)
-                direction = "left"
-                parsePointer -= 1
-            else:
-                parsePointer += 1
-        elif direction == "left":
-            if expr[parsePointer] == '(' and parsePointer not in openParenthesis:  
-                openParenthesis.append(parsePointer)
-                direction = "right"
-                parsePointer += 1
-            else:
-                parsePointer -= 1
-    # @parenthesisPairs - a list containing tuples representing '(' ')' pairs
-    #                   - ALWAYS in order from deepest () pair to shallowest () pair
-    #                     thanks to the nature of the Turing machine
-    parenthesisPairs = [(openParenthesis[i], closedParenthesis[i]) for i in range(0, len(closedParenthesis))]
-    print(parenthesisPairs)
     tokenizedExpr = []
     parsePointer = 0
     currentItem = ""
@@ -157,3 +130,37 @@ def evaluate(expression, vars, arrays):
         if currentItem and parsePointer == len(expr):
             tokenizedExpr.append(currentItem)
     print(tokenizedExpr)
+
+    closedParenthesis = []
+    openParenthesis = []
+    parsePointer = 0
+    direction = "right"
+    # 
+    # Parenthesis Turing Machine-Style scan to find open/closed parenthesis pairs
+    # IN THE TOKENIZED EXPR
+    #
+    while 0 <= parsePointer < len(tokenizedExpr):
+        if direction == "right":
+            if tokenizedExpr[parsePointer] == ')' and parsePointer not in closedParenthesis:
+                closedParenthesis.append(parsePointer)
+                direction = "left"
+                parsePointer -= 1
+            else:
+                parsePointer += 1
+        elif direction == "left":
+            if tokenizedExpr[parsePointer] == '(' and parsePointer not in openParenthesis:  
+                openParenthesis.append(parsePointer)
+                direction = "right"
+                parsePointer += 1
+            else:
+                parsePointer -= 1
+    # @parenthesisPairs - a list containing tuples representing '(' ')' pairs
+    #                   - ALWAYS in order from deepest () pair to shallowest () pair
+    #                     thanks to the nature of the Turing machine
+    parenthesisPairs = [(openParenthesis[i], closedParenthesis[i]) for i in range(0, len(closedParenthesis))]
+    print(parenthesisPairs)
+    #
+    # Deal with & replace each parenthesis pair with a value
+    #
+    for pair in parenthesisPairs:
+        print(pair)
