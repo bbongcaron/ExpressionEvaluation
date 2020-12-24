@@ -4,6 +4,17 @@ from objects.Variable import Variable
 
 delims = "\\t|\\*|\\+|-|/|\\(|\\)|\\[|\\]| "
 
+##
+#   Populates the vars list with simple variables, and arrays lists with arrays
+#   in the expression. For every variable (simple or array), a SINGLE instance is created 
+#   and stored, even if it appears more than once in the expression.
+#   At this time, values for all variables and all array items are set to
+#   zero - they will be loaded from a file in the loadVariableValues method.
+# 
+#   @param expr The expression
+#   @param vars The variables array list - already created by the caller
+#   @param arrays The arrays array list - already created by the caller
+##
 def makeVariableLists(expr, vars, arrays):
     # Split expr with above delimiters
     splitItems = re.split(delims, expr)
@@ -49,36 +60,48 @@ def makeVariableLists(expr, vars, arrays):
 def loadVariableValues(file, vars, arrays):
     for line in file:
         tokenizer = re.split(" ", line.strip())
-        var = Variable(tokenizer[0])
-        arr = Array(tokenizer[0])
+        # Assume that an Object with name tokenizer[0] DNE in vars & arrays at first
         varIndex = -1
         arrIndex = -1
         for vari in range(0, len(vars)):
+            # Linear scan thru vars comparing Variable names w/input file names
             if vars[vari].name == tokenizer[0]:
                 varIndex = vari
                 break
         if varIndex == -1:
+            # Only linear scan thru arrays if the Variable linear scan failed
             for arri in range(0, len(arrays)):
                 if arrays[arri].name == tokenizer[0]:
                     arrIndex = arri
                     break
         if varIndex == -1 and arrIndex == -1:
+            # Variable & Array linear scans failed => continue to next line in file
             continue
-
         if len(tokenizer) == 2:
             # Check: tokenizer containing 2 elements => item is a Variable
             # Action: Update var.value in vars
             vars[varIndex].value = tokenizer[1]
         else:
             # Otherwise: tokenizer contains >2 elements => item is an Array
+            # arr is a *pointer* to the wanted Array Object in arrays!!
             arr = arrays[arrIndex]
             arr.values = [0] * int(tokenizer[1])
             for i in range(2, len(tokenizer)):
+                # Scan thru input file (index,value) pairs
                 arrTokenizer = re.split(" |\\(|\\,|\\)", tokenizer[i])
                 arrItems = []
+                # Transfer non-'' elements to arrItems - a (index,value) pair
                 for item in arrTokenizer:
                     if item != '':
                         arrItems.append(item)
+                # Transfer value in arrItems to index specified by arrItems
                 arr.values[int(arrItems[0])] = int(arrItems[1])
-
-
+##
+#   Evaluates the expression.
+# 
+#   @param vars The variables array list, with values for all variables in the expression
+#   @param arrays The arrays array list, with values for all array items
+#   @return Result of evaluation
+##
+def evaluate(expr, vars, arrays):
+    pass
