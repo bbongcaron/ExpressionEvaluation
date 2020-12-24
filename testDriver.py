@@ -19,6 +19,15 @@ def main():
         print(v.toString())
     for a in arrays:
         print(a.toString())
-
+    #test = 50
+    #if 2 <= test <= 30:
+       # print('YES!')
+    for c in expr:
+        print(c + "\t", end='')
+    print()
+    for i in range(0, len(expr)):
+        print(str(i) + "\t", end='')
+    print()
+    Expr.evaluate(expr, vars, arrays)
 if __name__ == "__main__":
     main()

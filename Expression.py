@@ -1,6 +1,7 @@
 import re
 from objects.Array import Array
 from objects.Variable import Variable
+from structures.Stack import Stack
 
 delims = "\\t|\\*|\\+|-|/|\\(|\\)|\\[|\\]| "
 
@@ -104,4 +105,30 @@ def loadVariableValues(file, vars, arrays):
 #   @return Result of evaluation
 ##
 def evaluate(expr, vars, arrays):
-    pass
+    # expr = "3+(4*5)"
+    # PMDAS
+    #operationStack = Stack()
+    #valueStack = Stack()
+    closedParenthesis = []
+    openParenthesis = []
+    # Parenthesis Turing-Machine-Style scan
+    parsePointer = 0
+    direction = "right"
+    while 0 <= parsePointer < len(expr):
+        if direction == "right":
+            if expr[parsePointer] == ')' and parsePointer not in closedParenthesis:
+                closedParenthesis.append(parsePointer)
+                direction = "left"
+                parsePointer -= 1
+            else:
+                parsePointer += 1
+        elif direction == "left":
+            if expr[parsePointer] == '(' and parsePointer not in openParenthesis:  
+                openParenthesis.append(parsePointer)
+                direction = "right"
+                parsePointer += 1
+            else:
+                parsePointer -= 1
+        
+    print(closedParenthesis)
+    print(openParenthesis)
