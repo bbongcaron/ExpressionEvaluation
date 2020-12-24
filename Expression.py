@@ -175,11 +175,13 @@ def __basicSolve(tokenizedExpr, vars, arrays):
     while not operationStack.isEmpty():
         currentOp = operationStack.pop()
         num1 = valueStack.pop()
-        if currentOp in ('+', '-') and not operationStack.isEmpty() and operationStack.peek() in ('*', '/'):
+        if currentOp in ('+','-') and not operationStack.isEmpty() and operationStack.peek() in ('-','*','/'):
             num2 = valueStack.pop()
             num3 = valueStack.pop()
             if operationStack.peek() == '*':
                 valueStack.push(num3 * num2)
+            elif operationStack.peek() == '-':
+                valueStack.push(num3 - num2)
             else: # operationStack.peek() == '/'
                 valueStack.push(num3 / num2)
             operationStack.pop()
