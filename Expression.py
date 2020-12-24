@@ -4,7 +4,6 @@ from objects.Variable import Variable
 from structures.Stack import Stack
 
 delims = "\\t|\\*|\\+|-|/|\\(|\\)|\\[|\\]| "
-
 ##
 #   Populates the vars list with simple variables, and arrays lists with arrays
 #   in the expression. For every variable (simple or array), a SINGLE instance is created 
@@ -125,6 +124,7 @@ def evaluate(expression, vars, arrays):
         # Omit brackets & parenthesis when substituting (array indexes will be in position n+1),
         # where n is the index of the array name!)
         for i in range(0, len(tokenizedExpr)):
+            # Parenthesis expression is omitted, substitute solvedExpr into newTokenizedExpr
             if grouperPair[0] <= i <= grouperPair[1]:
                 if not substituted:
                     newTokenizedExpr.append(str(solvedExpr))
@@ -132,7 +132,6 @@ def evaluate(expression, vars, arrays):
             else:
                 newTokenizedExpr.append(tokenizedExpr[i])
         tokenizedExpr = newTokenizedExpr
-
     # Basic solve of expression with no parenthesis & simplified bracket expressions
     return __basicSolve(tokenizedExpr, vars, arrays)
 ##
@@ -144,7 +143,6 @@ def evaluate(expression, vars, arrays):
 #   @return The solution to the basic expression
 ##
 def __basicSolve(tokenizedExpr, vars, arrays):
-    # No parenthesis are left: straight solve the expression
     # Create operator and value stacks
     operationStack = Stack()
     valueStack = Stack()
@@ -172,6 +170,7 @@ def __basicSolve(tokenizedExpr, vars, arrays):
                         if element == arr.name:
                             # Element after Array name will be the index needed from Array Object
                             arrIndex = int(tokenizedExpr[index+1])
+                            # Push correct element of Array Object
                             valueStack.push(int(arr.values[arrIndex]))
                             # Remove Array Object index so the index is not pushed into valueStack
                             tokenizedExpr[index+1] = None
@@ -181,6 +180,7 @@ def __basicSolve(tokenizedExpr, vars, arrays):
     while not operationStack.isEmpty():
         currentOp = operationStack.pop()
         num1 = valueStack.pop()
+        # While loop takes care of order of operations
         while currentOp in ('+','-') and not operationStack.isEmpty() and operationStack.peek() in ('-','*','/'):
             num2 = valueStack.pop()
             num3 = valueStack.pop()
@@ -213,6 +213,7 @@ def __findGrouperPair(tokenizedExpr):
     openGrouper = -1
     parsePointer = 0
     direction = "right"
+    # Need lastFound so Turing Machine knows whether scanning for parnethesis or bracket
     lastFound = ''
     # Turing machine halts when a single parenthesis/bracket pair is found
     while 0 <= parsePointer < len(tokenizedExpr) and direction != "halt":

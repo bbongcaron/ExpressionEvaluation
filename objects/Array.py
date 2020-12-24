@@ -1,11 +1,9 @@
 ##
-#
 #   This class holds a (name, array of integers values) pair for an array.
 #   The name is a sequence of one or more letters.
 #
 #   @author ru-nb-cs112
 #   @translator Brenton Bongcaron
-#
 ##
 class Array:
     ##
@@ -40,9 +38,3 @@ class Array:
         if not o or not isinstance(o, Array):
             return False
         return self.name == o.name
-
-#arr = Array("varArr")
-#arr.values.append(2)
-#arr.values.append(4)
-#print(arr.equals(arr))
-#print(arr.toString())
