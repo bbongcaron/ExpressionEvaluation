@@ -107,21 +107,61 @@ def loadVariableValues(file, vars, arrays):
 def evaluate(expression, vars, arrays):
     # Remove spaces from expression
     expr = expression.replace(" ", "")
-    print(expr)
-    # expr = "3+(4*5)"
     # PMDAS
-    #operationStack = Stack()
-    #valueStack = Stack()
+    operationStack = Stack()
+    valueStack = Stack()
 
     # Separate expr into a list of operators and FULL variable/array names
     tokenizedExpr = __tokenizeExpression(expr)
-    print(tokenizedExpr)
 
-    # Attempt to scan for a parenthesis pair
+    # Attempt to scan for the deepest parenthesis pair
     parenthesisPair = ()
     if __findParenthesisPair(tokenizedExpr) is not None:
         parenthesisPair = __findParenthesisPair(tokenizedExpr)
-    print(parenthesisPair)
+        print(parenthesisPair)
+        print(tokenizedExpr[parenthesisPair[0]+1:parenthesisPair[1]])
+        # Solve expression in parenthesis pair
+        # Should be a while loop not an if statment
+    
+    # No parenthesis are left: straight solve the expression
+    # Create operator and value stacks
+    for element in tokenizedExpr:
+        if element in ('+', '-', '*', '/'):
+            operationStack.push(element)
+        elif element.isdigit():
+            valueStack.push(int(element))
+        else:
+            # element is an Array or Variable
+            found = False
+            for var in vars:
+                if element == var.name:
+                    valueStack.push(int(var.value))
+                    found = True
+            if not found:
+                # need to determine which array index to pull
+                found = True
+    # Start popping operator stack and determining values
+    while not operationStack.isEmpty():
+        currentOp = operationStack.pop()
+        num1 = valueStack.pop()
+        if currentOp in ('+', '-') and not operationStack.isEmpty() and operationStack.peek() in ('*', '/'):
+            num2 = valueStack.pop()
+            num3 = valueStack.pop()
+            if operationStack.peek() == '*':
+                valueStack.push(num3 * num2)
+            else: # operationStack.peek() == '/'
+                valueStack.push(num3 / num2)
+            operationStack.pop()
+        num2 = valueStack.pop()
+        if currentOp == '+':
+            valueStack.push(num2 + num1)
+        elif currentOp == '-':
+            valueStack.push(num2 - num1)
+        elif currentOp == '*':
+            valueStack.push(num2 * num1)
+        else:# currentOp == '/':
+            valueStack.push(num2 / num1)
+    return valueStack.pop()
 ##
 #   Parenthesis Turing Machine-Style scan to a single parenthesis pair
 #
