@@ -53,12 +53,18 @@ def loadVariableValues(file, vars, arrays):
         arr = Array(tokenizer[0])
         varIndex = -1
         arrIndex = -1
-        if var in vars: 
-            varIndex = vars.index(var)
-        elif arr in arrays: 
-            arrIndex = arrays.index(arr)
-        else: 
+        for vari in range(0, len(vars)):
+            if vars[vari].name == tokenizer[0]:
+                varIndex = vari
+                break
+        if varIndex == -1:
+            for arri in range(0, len(arrays)):
+                if arrays[arri].name == tokenizer[0]:
+                    arrIndex = arri
+                    break
+        if varIndex == -1 and arrIndex == -1:
             continue
+
         if len(tokenizer) == 2:
             # Check: tokenizer containing 2 elements => item is a Variable
             # Action: Update var.value in vars
@@ -66,12 +72,13 @@ def loadVariableValues(file, vars, arrays):
         else:
             # Otherwise: tokenizer contains >2 elements => item is an Array
             arr = arrays[arrIndex]
-            for i in range(1, len(tokenizer)):
+            arr.values = [0] * int(tokenizer[1])
+            for i in range(2, len(tokenizer)):
                 arrTokenizer = re.split(" |\\(|\\,|\\)", tokenizer[i])
                 arrItems = []
                 for item in arrTokenizer:
                     if item != '':
                         arrItems.append(item)
-                arr.values[arrItems[0]] = arrItems[1]
+                arr.values[int(arrItems[0])] = int(arrItems[1])
 
 

@@ -15,5 +15,10 @@ def main():
     with open("etest1.txt", 'r') as file:
         Expr.loadVariableValues(file, vars, arrays)
 
+    for v in vars:
+        print(v.toString())
+    for a in arrays:
+        print(a.toString())
+
 if __name__ == "__main__":
     main()
