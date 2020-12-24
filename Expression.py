@@ -149,30 +149,33 @@ def __basicSolve(tokenizedExpr, vars, arrays):
     operationStack = Stack()
     valueStack = Stack()
     for index, element in enumerate(tokenizedExpr):
-        if element is None:
-            continue
-        elif element in ('+', '-', '*', '/'):
-            operationStack.push(element)
-        elif element.isdigit():
+        try:
+            # try to straight push the element => works if element is an integer
             valueStack.push(int(element))
-        else:
-            # element is an Array or Variable
-            found = False
-            for var in vars:
-                if element == var.name:
-                    valueStack.push(int(var.value))
-                    found = True
-                    break
-            if not found:
-                for arr in arrays:
-                    if element == arr.name:
-                        # Element after Array name will be the index needed from Array Object
-                        arrIndex = int(tokenizedExpr[index+1])
-                        valueStack.push(int(arr.values[arrIndex]))
-                        # Remove Array Object index so the index is not pushed into valueStack
-                        tokenizedExpr[index+1] = None
+        except ValueError:
+            # catching ValueError => element is either an Array/Variable Object or None
+            if element is None:
+                continue
+            elif element in ('+', '-', '*', '/'):
+                operationStack.push(element)
+            else:
+                # element is an Array or Variable
+                found = False
+                for var in vars:
+                    if element == var.name:
+                        valueStack.push(int(var.value))
                         found = True
                         break
+                if not found:
+                    for arr in arrays:
+                        if element == arr.name:
+                            # Element after Array name will be the index needed from Array Object
+                            arrIndex = int(tokenizedExpr[index+1])
+                            valueStack.push(int(arr.values[arrIndex]))
+                            # Remove Array Object index so the index is not pushed into valueStack
+                            tokenizedExpr[index+1] = None
+                            found = True
+                            break
     # Start popping operator stack and determining values
     while not operationStack.isEmpty():
         currentOp = operationStack.pop()
