@@ -111,24 +111,47 @@ def evaluate(expression, vars, arrays):
     # Separate expr into a list of operators and FULL variable/array names
     tokenizedExpr = __tokenizeExpression(expr)
 
-    # Attempt to scan for the deepest parenthesis pair
-    parenthesisPair = ()
-    if __findParenthesisPair(tokenizedExpr) is not None:
-        parenthesisPair = __findParenthesisPair(tokenizedExpr)
-        print(parenthesisPair)
-        print(tokenizedExpr[parenthesisPair[0]+1:parenthesisPair[1]])
-        # Solve expression in parenthesis pair
-        # Should be a while loop not an if statment
-    
-    return __basicSolve(tokenizedExpr, vars, arrays)
+    # 
+    # Attempt to scan for the deepest ()/[] pair and solve deepest ()/[] expression
+    # 
+    grouperPair = ()
+    while __findGrouperPair(tokenizedExpr) is not None:
+        # @grouperPair Tuplet representing indexOf start grouper ( | [ and end grouper ) | ]
+        grouperPair = __findGrouperPair(tokenizedExpr)
+        # @solvedExpr The solution to the deepest ()/[] expression w/__basicSolve()
+        solvedExpr = __basicSolve(tokenizedExpr[grouperPair[0]+1:grouperPair[1]], vars, arrays)
+        newTokenizedExpr = []
+        substituted = False
+        # Omit brackets & parenthesis when substituting (array indexes will be in position n+1),
+        # where n is the index of the array name!)
+        for i in range(0, len(tokenizedExpr)):
+            if grouperPair[0] <= i <= grouperPair[1]:
+                if not substituted:
+                    newTokenizedExpr.append(str(solvedExpr))
+                    substituted = True
+            else:
+                newTokenizedExpr.append(tokenizedExpr[i])
+        tokenizedExpr = newTokenizedExpr
 
+    # Basic solve of expression with no parenthesis & simplified bracket expressions
+    return __basicSolve(tokenizedExpr, vars, arrays)
+##
+#   Basic solve of expression with no parenthesis & simplified bracket expressions
+#
+#   @param tokenizedExpr The tokenized expression
+#   @param vars The list of Variable objects
+#   @param arrays The list of Array objects
+#   @return The solution to the basic expression
+##
 def __basicSolve(tokenizedExpr, vars, arrays):
     # No parenthesis are left: straight solve the expression
     # Create operator and value stacks
     operationStack = Stack()
     valueStack = Stack()
-    for element in tokenizedExpr:
-        if element in ('+', '-', '*', '/'):
+    for index, element in enumerate(tokenizedExpr):
+        if element is None:
+            continue
+        elif element in ('+', '-', '*', '/'):
             operationStack.push(element)
         elif element.isdigit():
             valueStack.push(int(element))
@@ -140,9 +163,14 @@ def __basicSolve(tokenizedExpr, vars, arrays):
                     valueStack.push(int(var.value))
                     found = True
             if not found:
-                # need to determine which array index to pull
-                found = True
-    
+                for arr in arrays:
+                    if element == arr.name:
+                        # Element after Array name will be the index needed from Array Object
+                        arrIndex = int(tokenizedExpr[index+1])
+                        valueStack.push(int(arr.values[arrIndex]))
+                        # Remove Array Object index so the index is not pushed into valueStack
+                        tokenizedExpr[index+1] = None
+                        found = True
     # Start popping operator stack and determining values
     while not operationStack.isEmpty():
         currentOp = operationStack.pop()
@@ -166,36 +194,42 @@ def __basicSolve(tokenizedExpr, vars, arrays):
             valueStack.push(num2 / num1)
     return valueStack.pop()
 ##
-#   Parenthesis Turing Machine-Style scan to a single parenthesis pair
+#   Parenthesis/Bracket Turing Machine-Style scan to a single parenthesis pair
 #
 #   @param tokenizedExpr The tokenized expression
 #   @return - None if no parenthesis are left in the expression
 #           - otherwise a tuple representing a '(' ')' pair 
 ##
-def __findParenthesisPair(tokenizedExpr):
-    closedParenthesis = -1
-    openParenthesis = -1
+def __findGrouperPair(tokenizedExpr):
+    closedGrouper = -1
+    openGrouper = -1
     parsePointer = 0
     direction = "right"
-    # Turing machine halts when a single parenthesis pair is found
+    lastFound = ''
+    # Turing machine halts when a single parenthesis/bracket pair is found
     while 0 <= parsePointer < len(tokenizedExpr) and direction != "halt":
         if direction == "right":
-            if tokenizedExpr[parsePointer] == ')':
-                closedParenthesis = parsePointer
+            if tokenizedExpr[parsePointer] == ')' or tokenizedExpr[parsePointer] == ']':
+                closedGrouper = parsePointer
                 direction = "left"
+                lastFound = tokenizedExpr[parsePointer]
                 parsePointer -= 1
             else:
                 parsePointer += 1
         elif direction == "left":
-            if tokenizedExpr[parsePointer] == '(':  
-                openParenthesis = parsePointer
+            if lastFound == ')' and tokenizedExpr[parsePointer] == '(':  
+                openGrouper = parsePointer
+                direction = "halt"
+                parsePointer += 1
+            elif lastFound == ']' and tokenizedExpr[parsePointer] == '[':
+                openGrouper = parsePointer
                 direction = "halt"
                 parsePointer += 1
             else:
                 parsePointer -= 1
-    if closedParenthesis == -1 and openParenthesis == -1:
+    if closedGrouper == -1 and openGrouper == -1:
         return None       
-    return (openParenthesis, closedParenthesis)
+    return (openGrouper, closedGrouper)
 ##
 #   Separate the expression into a list of operators and *full* variable names:
 #   expr = variableX + (variableY) would be tokenized to:
