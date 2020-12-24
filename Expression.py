@@ -104,16 +104,19 @@ def loadVariableValues(file, vars, arrays):
 #   @param arrays The arrays array list, with values for all array items
 #   @return Result of evaluation
 ##
-def evaluate(expr, vars, arrays):
+def evaluate(expression, vars, arrays):
+    # Remove spaces from expression
+    expr = expression.replace(" ", "")
+    print(expr)
     # expr = "3+(4*5)"
     # PMDAS
     #operationStack = Stack()
     #valueStack = Stack()
     closedParenthesis = []
     openParenthesis = []
-    # Parenthesis Turing-Machine-Style scan
     parsePointer = 0
     direction = "right"
+    # Parenthesis Turing Machine-Style scan
     while 0 <= parsePointer < len(expr):
         if direction == "right":
             if expr[parsePointer] == ')' and parsePointer not in closedParenthesis:
@@ -129,6 +132,26 @@ def evaluate(expr, vars, arrays):
                 parsePointer += 1
             else:
                 parsePointer -= 1
-        
-    print(closedParenthesis)
-    print(openParenthesis)
+    # @parenthesisPairs - a list containing tuples representing '(' ')' pairs
+    #                   - ALWAYS in order from deepest () pair to shallowest () pair
+    #                     thanks to the nature of the Turing machine
+    parenthesisPairs = [(openParenthesis[i], closedParenthesis[i]) for i in range(0, len(closedParenthesis))]
+    print(parenthesisPairs)
+    tokenizedExpr = []
+    parsePointer = 0
+    currentItem = ""
+    #   tokenize the expression by operators and *full* variable names:
+    #       expr = variableX + (variableY) would be tokenized to:
+    #               ['variableX', '+', '(', 'variableY', ')']
+    while parsePointer < len(expr):
+        if expr[parsePointer] in ('+', '-', '*', '/', '[', ']', '(', ')'):
+            if parsePointer != 0:
+                tokenizedExpr.append(currentItem)
+            tokenizedExpr.append(expr[parsePointer])
+            currentItem = ""
+        else:
+            currentItem += expr[parsePointer]
+        parsePointer += 1
+        if parsePointer == len(expr):
+            tokenizedExpr.append(currentItem)
+    print(tokenizedExpr)
