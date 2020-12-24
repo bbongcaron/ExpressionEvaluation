@@ -112,12 +112,60 @@ def evaluate(expression, vars, arrays):
     # PMDAS
     #operationStack = Stack()
     #valueStack = Stack()
+
+    # Separate expr into a list of operators and FULL variable/array names
+    tokenizedExpr = __tokenizeExpression(expr)
+    print(tokenizedExpr)
+
+    # Attempt to scan for a parenthesis pair
+    parenthesisPair = ()
+    if __findParenthesisPair(tokenizedExpr) is not None:
+        parenthesisPair = __findParenthesisPair(tokenizedExpr)
+    print(parenthesisPair)
+##
+#   Parenthesis Turing Machine-Style scan to a single parenthesis pair
+#
+#   @param tokenizedExpr The tokenized expression
+#   @return - None if no parenthesis are left in the expression
+#           - otherwise a tuple representing a '(' ')' pair 
+##
+def __findParenthesisPair(tokenizedExpr):
+    closedParenthesis = -1
+    openParenthesis = -1
+    parsePointer = 0
+    direction = "right"
+    # Turing machine halts when a single parenthesis pair is found
+    while 0 <= parsePointer < len(tokenizedExpr) and direction != "halt":
+        if direction == "right":
+            if tokenizedExpr[parsePointer] == ')':
+                closedParenthesis = parsePointer
+                direction = "left"
+                parsePointer -= 1
+            else:
+                parsePointer += 1
+        elif direction == "left":
+            if tokenizedExpr[parsePointer] == '(':  
+                openParenthesis = parsePointer
+                direction = "halt"
+                parsePointer += 1
+            else:
+                parsePointer -= 1
+    if closedParenthesis == -1 and openParenthesis == -1:
+        return None       
+    return (openParenthesis, closedParenthesis)
+##
+#   Separate the expression into a list of operators and *full* variable names:
+#   expr = variableX + (variableY) would be tokenized to:
+#           ['variableX', '+', '(', 'variableY', ')']
+#
+#   @param expr The expression to be evaluated
+#   @return The list containing tokenized expression
+#
+##
+def __tokenizeExpression(expr):
     tokenizedExpr = []
     parsePointer = 0
     currentItem = ""
-    # tokenize the expression by operators and *full* variable names:
-    # expr = variableX + (variableY) would be tokenized to:
-    #        ['variableX', '+', '(', 'variableY', ')']
     while parsePointer < len(expr):
         if expr[parsePointer] in ('+', '-', '*', '/', '[', ']', '(', ')'):
             if currentItem:
@@ -129,38 +177,4 @@ def evaluate(expression, vars, arrays):
         parsePointer += 1
         if currentItem and parsePointer == len(expr):
             tokenizedExpr.append(currentItem)
-    print(tokenizedExpr)
-
-    closedParenthesis = []
-    openParenthesis = []
-    parsePointer = 0
-    direction = "right"
-    # 
-    # Parenthesis Turing Machine-Style scan to find open/closed parenthesis pairs
-    # IN THE TOKENIZED EXPR
-    #
-    while 0 <= parsePointer < len(tokenizedExpr):
-        if direction == "right":
-            if tokenizedExpr[parsePointer] == ')' and parsePointer not in closedParenthesis:
-                closedParenthesis.append(parsePointer)
-                direction = "left"
-                parsePointer -= 1
-            else:
-                parsePointer += 1
-        elif direction == "left":
-            if tokenizedExpr[parsePointer] == '(' and parsePointer not in openParenthesis:  
-                openParenthesis.append(parsePointer)
-                direction = "right"
-                parsePointer += 1
-            else:
-                parsePointer -= 1
-    # @parenthesisPairs - a list containing tuples representing '(' ')' pairs
-    #                   - ALWAYS in order from deepest () pair to shallowest () pair
-    #                     thanks to the nature of the Turing machine
-    parenthesisPairs = [(openParenthesis[i], closedParenthesis[i]) for i in range(0, len(closedParenthesis))]
-    print(parenthesisPairs)
-    #
-    # Deal with & replace each parenthesis pair with a value
-    #
-    for pair in parenthesisPairs:
-        print(pair)
+    return tokenizedExpr
